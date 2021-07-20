@@ -1,0 +1,212 @@
+drop database if exists BD_Instituto;
+create database BD_Instituto;
+use BD_Instituto;
+
+
+drop table if exists TB_Alumno;
+create table TB_Alumno(
+IdAlumno varchar(10) not null,
+Nombre varchar(50) not null,
+Apellidos varchar(70) not null,
+DNI char(8) not null,
+fecNac date not null,
+fecReg date not null,
+primary key(IdAlumno)
+);
+
+/*drop table if exists TB_Creditos;
+create table TB_Creditos(
+creditos int(2) not null,
+IdCurso varchar(10) not null,
+primary key(IdCurso) 
+);*/
+
+drop table if exists TB_Cursos;
+create table TB_Cursos(
+IdCurso varchar(10) not null,
+Curso varchar(70) not null,
+ciclo smallint not null,
+creditos smallint not null,
+primary key (IdCurso)
+);
+
+drop table if exists TB_Profesores;
+Create table TB_Profesores(
+IdProfesor varchar(10) not null,
+Nombre varchar(50) not null,
+Apellidos varchar(70) not null,
+DNI char(8) not null,
+IdCurso varchar(10)not null  ,
+primary key(IdProfesor)
+);
+
+
+
+drop table if exists TB_Registrados;
+create table TB_Registrados(
+IdRegistro varchar(10) not null,
+IdAlumno varchar(10) not null,
+IdCurso varchar(10) not null,
+primary key (IdRegistro)
+);
+
+drop table if exists TB_Usuarios;
+create table TB_Usuarios(
+idUsuario varchar(10) not null,
+nombre varchar(50) not null,
+apellidos varchar(70) not null,
+dni char(8) not null,
+login varchar(15) not null,
+contra varchar(20) not null,
+primary key(idUsuario)
+);
+
+drop table if exists TB_Opcion;
+create table TB_Opcion(
+idOpcion varchar(10) not null,
+nombre varchar(20) not null,
+estado smallint not null,
+primary key(idOpcion)
+);
+
+drop table if exists TB_Rol;
+create table TB_Rol(
+idRol varchar(10) not null,
+nombre varchar(20) not null,
+estado smallint not null,
+primary key(idRol)
+);
+
+drop table if exists TB_usuario_has_rol;
+create table TB_usuario_has_rol(
+idUsuario varchar(10) not null,
+idRol varchar(10) not null,
+primary key(idUsuario,idRol)
+);
+
+drop table if exists TB_rol_has_opcion;
+create table TB_rol_has_opcion(
+idRol varchar(10) not null,
+idOpcion varchar(10) not null,
+primary key(idRol,idOpcion)
+);
+
+/*unique*/
+alter table tb_opcion
+add constraint UQ_nombre
+unique (nombre);
+
+alter table tb_usuarios
+add constraint UQ_Login
+unique (login);
+
+alter table tb_usuarios
+add constraint UQ_Contra
+unique (contra);
+
+alter table tb_alumno
+add constraint UQ_DNI
+unique (DNI);
+
+/*ALTER TABLE tb_creditos
+ADD CONSTRAINT UQ_IDCURSOCRE
+unique (IdCurso);*/
+
+alter table tb_cursos
+add constraint UQ_Curso
+unique (Curso);
+
+alter table tb_profesores
+add constraint UQ_DNIPro
+unique (DNI);
+
+/*CHECK*/
+alter table tb_registrados
+add constraint CK_Registro
+check (idregistro like 'REG[0-9][0-9][0-9][0-9]');
+alter table tb_alumno
+add constraint CK_IDAlumno
+check (IdAlumno like 'ALU[0-9][0-9][0-9]');
+
+alter table tb_cursos
+add constraint CK_Ciclo
+check (ciclo >=1 and ciclo <=6);
+
+alter table tb_cursos
+add constraint CK_IDCurso
+check(IdCurso like 'CUR[0-9][0-9][0-9]');
+
+alter table tb_profesores
+add constraint CK_IdProfesor
+check (IdProfesor like 'PRO[0-9][0-9][0-9]');
+
+alter table tb_usuarios
+add constraint CK_IdUsuario
+check (idUsuario like 'USU[0-9][0-9][0-9]');
+
+alter table TB_Opcion
+add constraint CK_Estado
+check(estado in ('0','1'));
+
+alter table TB_Opcion
+add constraint CK_IdOpcion
+check(idOpcion like 'OPC[0-9][0-9][0-9]');
+
+alter table tb_alumno
+add constraint CK_Anho
+check(year(fecNac)<2004);
+
+alter table tb_alumno
+add constraint CK_Reg
+check(year(fecNac)<year(fecReg));
+
+alter table tb_cursos
+add constraint CK_CrediCur
+check(creditos>0 and creditos<=10);
+
+/*Foreign Key*/
+/*alter table tb_creditos
+add constraint FK_IdCurso
+foreign key(IdCurso) references tb_cursos(IdCurso);*/
+
+alter table tb_profesores
+add constraint FK_IdCursoPro
+foreign key(IdCurso) references tb_cursos(IdCurso);
+
+alter table tb_registrados
+add constraint FK_IdAlumnoReg
+foreign key (IdAlumno) references tb_alumno(IdAlumno);
+
+alter table tb_registrados
+add constraint FK_IdCursoReg
+foreign key (IdCurso) references tb_cursos(IdCurso);
+
+alter table tb_rol_has_opcion
+add constraint FK_IdRol
+foreign key (IdRol) references tb_rol(idRol);
+
+alter table tb_rol_has_opcion
+add constraint FK_IdOpcion
+foreign key (idOpcion) references tb_opcion(IdOpcion);
+
+alter table tb_usuario_has_rol
+add constraint FK_IdUsuario
+foreign key (idUsuario) references tb_usuarios(IdUsuario);
+
+alter table tb_usuario_has_rol
+add constraint FK_IdRolUsu
+foreign key (idRol) references tb_rol(idRol);	
+
+/*INSERTAR DATOS*/
+insert into bd_instituto.tb_usuarios values('USU001','Piero','Castillo Abad','12345678','Instituto','Instituto');
+
+insert into bd_instituto.tb_opcion values('OPC001','Alumno',1);
+insert into bd_instituto.tb_opcion values('OPC002','Creditos',1);
+insert into bd_instituto.tb_opcion values('OPC003','Cursos',1);
+insert into bd_instituto.tb_opcion values('OPC004','Profesores',1);
+insert into bd_instituto.tb_opcion values('OPC005','Registrados',1);
+
+insert into bd_instituto.tb_rol values('ROL001','Administrador',1);
+
+insert into bd_instituto.tb_usuario_has_rol values('USU001','ROL001');
+
